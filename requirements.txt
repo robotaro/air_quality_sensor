@@ -1,0 +1,19 @@
+# Air Quality Monitor Python Requirements
+
+# Core requirements
+paho-mqtt==1.6.1          # MQTT client for all scripts
+pandas==2.0.3             # Data manipulation and CSV handling
+
+# Visualization requirements
+dash==2.14.0              # Web dashboard framework
+plotly==5.18.0            # Interactive plots
+dash-bootstrap-components==1.5.0  # Better styling for Dash
+
+# Data analysis requirements
+matplotlib==3.7.2         # Static plotting for analysis
+seaborn==0.12.2          # Statistical visualizations
+numpy==1.24.3            # Numerical computations
+
+# Optional but recommended
+python-dateutil==2.8.2    # Better date handling
+pytz==2023.3             # Timezone support
