@@ -149,8 +149,6 @@ def on_message(client, userdata, msg):
 
         # Only process data messages (not status or response messages)
         if msg.topic == MQTT_TOPIC_DATA:
-            print(
-                f"Received data from: {payload.get('device_id', 'unknown')}, timestamp: {payload.get('timestamp', 'none')}")
             data_store.add_data(payload)
         else:
             print(f"Received message on topic {msg.topic}")
@@ -537,4 +535,4 @@ if __name__ == '__main__':
     print(f"Connecting to MQTT broker at {MQTT_BROKER}:{MQTT_PORT}")
     print(f"Subscribing to topic: {MQTT_TOPIC_DATA}")
     print("Dashboard available at: http://localhost:8050")
-    app.run_server(debug=False, host='127.0.0.1', port=8050)
+    app.run_server(debug=False, host='0.0.0.0', port=8050)
