@@ -25,7 +25,7 @@ MQTT_TOPIC_DATA = "airquality/sensor/data"
 MQTT_TOPIC_STATUS = "airquality/sensor/status"
 
 # Data storage configuration
-DATA_DIR = "data/csv"
+DATA_DIR = "data"
 BUFFER_DURATION = 300  # 1 minute in seconds (changed from 300 to 60)
 CSV_HEADERS = [
     "timestamp", "device_id", "pm1_0_cf1", "pm2_5_cf1", "pm10_cf1",
