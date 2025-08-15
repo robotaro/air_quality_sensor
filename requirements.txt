@@ -17,3 +17,9 @@ numpy==1.24.3            # Numerical computations
 # Optional but recommended
 python-dateutil==2.8.2    # Better date handling
 pytz==2023.3             # Timezone support
+
+
+ umap-learn
+ scikit-learn
+ dash
+ plotly

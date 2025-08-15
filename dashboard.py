@@ -15,6 +15,7 @@ from dash import dcc, html, Input, Output, State, callback
 import plotly.graph_objs as go
 import plotly.express as px
 import pandas as pd
+from constants import MQTT_BROKER, MQTT_PORT
 
 # Try to import dateutil for better date parsing
 try:
@@ -25,8 +26,6 @@ except ImportError:
     USE_DATEUTIL = False
 
 # Configuration
-MQTT_BROKER = "192.168.1.114"
-MQTT_PORT = 1883
 MQTT_USER = ""
 MQTT_PASSWORD = ""
 MQTT_TOPIC_DATA = "airquality/sensor/data"

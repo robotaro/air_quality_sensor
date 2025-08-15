@@ -15,10 +15,9 @@ import paho.mqtt.client as mqtt
 import signal
 import sys
 from dateutil import parser as date_parser
+from constants import MQTT_BROKER, MQTT_PORT, BUFFER_DURATION
 
 # Configuration
-MQTT_BROKER = "192.168.1.114"
-MQTT_PORT = 1883
 MQTT_USER = ""  # Leave empty if no auth
 MQTT_PASSWORD = ""
 MQTT_TOPIC_DATA = "airquality/sensor/data"
@@ -26,7 +25,6 @@ MQTT_TOPIC_STATUS = "airquality/sensor/status"
 
 # Data storage configuration
 DATA_DIR = "data"
-BUFFER_DURATION = 300  # 1 minute in seconds (changed from 300 to 60)
 CSV_HEADERS = [
     "timestamp", "device_id", "pm1_0_cf1", "pm2_5_cf1", "pm10_cf1",
     "pm1_0_atm", "pm2_5_atm", "pm10_atm", "particles_03", "particles_05",
