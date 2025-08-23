@@ -28,6 +28,7 @@ DEFAULT_MQTT_TOPIC_COMMAND = "airquality/sensor/command"
 # and the last time the alarm was triggered.
 mqtt_client = None
 last_triggered_time = None
+args = None  # Global variable to store command line arguments
 
 def parse_arguments():
     """
@@ -56,7 +57,8 @@ def parse_arguments():
 
     return parser.parse_args()
 
-def send_buzzer_command(duty_cycle, command_topic):
+
+def send_buzzer_command(duty_cycle, period, command_topic):
     """
     Sends a command to the buzzer via MQTT.
     A duty cycle of 0 turns the buzzer off.
@@ -69,7 +71,7 @@ def send_buzzer_command(duty_cycle, command_topic):
         message = {
             "type": "buzzer",
             "duty_cycle": float(duty_cycle),
-            "period": 1.0,  # A default period, as the primary control is duty cycle.
+            "period": float(period),
             "id": f"alerter_{int(time.time() * 1000)}"
         }
         payload = json.dumps(message)
@@ -77,7 +79,7 @@ def send_buzzer_command(duty_cycle, command_topic):
         if result.rc != 0:
             print(f"Failed to send command to topic '{command_topic}'. Result code: {result.rc}")
         else:
-            print(f"Successfully sent command: duty_cycle={duty_cycle}")
+            print(f"Successfully sent command: duty_cycle={duty_cycle}, period={period}")
     except Exception as e:
         print(f"An error occurred while sending buzzer command: {e}")
 
@@ -120,13 +122,13 @@ def on_message(client, userdata, msg):
         if pm10_value >= args.threshold:
             print(f"--- PM10 THRESHOLD EXCEEDED ({pm10_value:.2f} >= {args.threshold}) ---")
             print("Activating buzzer...")
-            send_buzzer_command(args.duty_cycle, args.command_topic)
+            send_buzzer_command(args.duty_cycle, 1.0, args.command_topic)
 
             # Wait for 5 seconds
             time.sleep(5)
 
             print("Deactivating buzzer.")
-            send_buzzer_command(0, args.command_topic)
+            send_buzzer_command(0.0, 1.0, args.command_topic)
 
             # Update the last triggered time and start the cooldown
             last_triggered_time = datetime.now()
@@ -145,7 +147,7 @@ def signal_handler(sig, frame):
     print("\nExit signal received. Shutting down...")
     if mqtt_client and mqtt_client.is_connected():
         print("Ensuring buzzer is turned off before exit.")
-        send_buzzer_command(0, args.command_topic)
+        send_buzzer_command(0.0, 1.0, args.command_topic)  # Fixed: added period parameter
         # Give a moment for the message to be sent
         time.sleep(0.5)
         mqtt_client.disconnect()
@@ -154,6 +156,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 if __name__ == "__main__":
+    global args
     args = parse_arguments()
 
     # Register the signal handler for graceful shutdown
@@ -181,7 +184,7 @@ if __name__ == "__main__":
         mqtt_client.loop_start()
         time.sleep(1)
         print("Sending initial command to ensure buzzer is off.")
-        send_buzzer_command(0, args.command_topic)
+        send_buzzer_command(0.0, 1.0, args.command_topic)  # Fixed: added period parameter
 
         print("Monitoring for PM10 data. Press Ctrl+C to exit.")
         # Keep the script running indefinitely
