@@ -38,9 +38,9 @@ def parse_arguments():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        '--duty-cycle',
+        '--duty_cycle',
         type=float,
-        default=0.25,
+        default=0.2,
         help="The duty cycle for the buzzer when activated (0.0 to 1.0)."
     )
     parser.add_argument(
