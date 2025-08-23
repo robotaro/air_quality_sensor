@@ -144,6 +144,7 @@ def signal_handler(sig, frame):
     """
     Handles exit signals (like Ctrl+C) to ensure the buzzer is turned off.
     """
+    global args
     print("\nExit signal received. Shutting down...")
     if mqtt_client and mqtt_client.is_connected():
         print("Ensuring buzzer is turned off before exit.")
@@ -156,7 +157,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 if __name__ == "__main__":
-    global args
+    # Store the parsed arguments in the global variable
     args = parse_arguments()
 
     # Register the signal handler for graceful shutdown
