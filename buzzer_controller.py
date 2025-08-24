@@ -75,13 +75,15 @@ def send_buzzer_command(duty_cycle, period, command_topic):
             "id": f"alerter_{int(time.time() * 1000)}"
         }
         payload = json.dumps(message)
-        result = mqtt_client.publish(command_topic, payload)
+        # Publish with QoS 1 for more deterministic delivery
+        result = mqtt_client.publish(command_topic, payload, qos=1)
         if result.rc != 0:
             print(f"Failed to send command to topic '{command_topic}'. Result code: {result.rc}")
         else:
             print(f"Successfully sent command: duty_cycle={duty_cycle}, period={period}")
     except Exception as e:
         print(f"An error occurred while sending buzzer command: {e}")
+
 
 def on_connect(client, userdata, flags, rc):
     """
@@ -95,11 +97,13 @@ def on_connect(client, userdata, flags, rc):
         print(f"Failed to connect to MQTT broker, return code {rc}\n")
         sys.exit(1)
 
+
 def on_message(client, userdata, msg):
     """
     Callback function for when a message is received from the MQTT broker.
     This is the core logic of the alerter.
     """
+    import threading  # local import to avoid needing a top-level change
     global last_triggered_time
     args = userdata['args']
 
@@ -113,24 +117,25 @@ def on_message(client, userdata, msg):
 
         print(f"Received PM10 value: {pm10_value:.2f} μg/m³ (Threshold: {args.threshold:.2f})")
 
-        # Check if the cooldown period has passed
+        # Check cooldown
         if last_triggered_time and (datetime.now() - last_triggered_time).total_seconds() < REST_PERIOD_SECONDS:
             print(" -> In cooldown period. Ignoring.")
             return
 
-        # Check if the threshold is exceeded
+        # Threshold exceeded -> trigger buzzer ON now, schedule OFF without blocking
         if pm10_value >= args.threshold:
             print(f"--- PM10 THRESHOLD EXCEEDED ({pm10_value:.2f} >= {args.threshold}) ---")
             print("Activating buzzer...")
             send_buzzer_command(args.duty_cycle, 1.0, args.command_topic)
 
-            # Wait for 5 seconds
-            time.sleep(5)
+            # Schedule OFF after 5 seconds without blocking the MQTT network thread
+            def _turn_off():
+                print("Deactivating buzzer.")
+                send_buzzer_command(0.0, 1.0, args.command_topic)
 
-            print("Deactivating buzzer.")
-            send_buzzer_command(0.0, 1.0, args.command_topic)
+            threading.Timer(5.0, _turn_off).start()
 
-            # Update the last triggered time and start the cooldown
+            # Start cooldown immediately
             last_triggered_time = datetime.now()
             cooldown_end = last_triggered_time + timedelta(seconds=REST_PERIOD_SECONDS)
             print(f"Cooldown period started. No new alarms until {cooldown_end.strftime('%H:%M:%S')}.")
@@ -139,6 +144,7 @@ def on_message(client, userdata, msg):
         print(f"Warning: Could not decode JSON from message on topic '{msg.topic}'")
     except Exception as e:
         print(f"An error occurred in on_message: {e}")
+
 
 def signal_handler(sig, frame):
     """
