@@ -20,7 +20,7 @@ last_triggered_time = None     # datetime when cooldown starts (after OFF)
 
 # --- Configuration ---
 # The rest period (in seconds) after the buzzer is triggered, before it can be triggered again.
-REST_PERIOD_SECONDS = 5 * 60  # 5 minutes
+REST_PERIOD_SECONDS = 7 * 60  # 7 minutes
 
 # Default MQTT connection settings (can be overridden by command-line arguments)
 DEFAULT_MQTT_BROKER = "localhost"
@@ -171,7 +171,7 @@ def on_message(client, userdata, msg):
         # Threshold crossed => run 5s ON @ duty_cycle, then OFF, then cooldown
         if pm10_value >= args.threshold:
             trigger_buzzer_for(
-                duration_sec=5.0,
+                duration_sec=4.7,
                 duty_cycle=float(args.duty_cycle),  # e.g., 0.2
                 period=1.0,
                 command_topic=args.command_topic,
