@@ -52,7 +52,7 @@ def parse_arguments():
     parser.add_argument(
         '--threshold',
         type=float,
-        default=50.0,
+        default=75.0,
         help="The PM10 concentration threshold (in μg/m³) to trigger the buzzer."
     )
     parser.add_argument('--broker', default=DEFAULT_MQTT_BROKER, help="MQTT broker address.")
